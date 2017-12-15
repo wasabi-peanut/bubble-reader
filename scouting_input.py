@@ -50,7 +50,6 @@ def getPaper(edgeMap, gray, image):
 	# apply scikit adaptive threshold to image.
 	# this is better than a threshold if there is varied lighting on the paper
 	thresh = img_as_ubyte(threshold_adaptive(warped, 301, offset = 10))
-
 	return (thresh, paper)
 
 def scanPaper(thresh, columns):
@@ -75,10 +74,10 @@ def scanPaper(thresh, columns):
 		(x, y, w, h) = cv2.boundingRect(c)
 		ar = w / float(h)
 
-		# bubbles must be no more than 20% of screen width and height.
+		# bubbles must be between 6% and 20% of screen width and height.
 		# bubbles cannot be too small, to account for image noise
 		# the bubble's bounding box has to be roughly square
-		if w <= thresh.shape[1]*0.2 and h <= thresh.shape[0]*0.2 and w >= 20 and h >= 20 and ar >= 0.75 and ar <= 1.25:
+		if w > 10 and h > 10 and w <= thresh.shape[1]*0.2 and h <= thresh.shape[0]*0.2 and w >= thresh.shape[1]*0.06 and h >= thresh.shape[0]*0.06 and ar >= 0.75 and ar <= 1.25:
 			# if the bubble fits those conditions, the contour is added to the list.
 			# the bubble's hierarchy information is added to the hierarchy list
 			validCnts.append(c)
@@ -124,23 +123,27 @@ correct_answers = [(0, 1), (0, 3), (0, 4), (0, 7), (1, 6), (2, 4), (2, 5), (3, 2
 # if live is true it goes constantly, otherwise it goes when you press a key.
 # the key defaults to spacebar (key code 32)
 
+def processImage(image, display=True, title="Answers Found", bubbles=0):
+	prepped = prepPhoto(image)
+	paper = getPaper(*prepped, image)
+	thresh = paper[0]
+	paper = cv2.cvtColor(paper[1], cv2.COLOR_GRAY2BGR)
+	scan = scanPaper(thresh, 9)
+	if bubbles == 0 or len(scan[1]) == bubbles:	
+		if (display):
+			cv2.drawContours(paper, scan[1], -1, (255,0,0), -1)
+			cv2.drawContours(paper, scan[2], -1, (0,255,0), -1)
+			cv2.imshow(title, paper)
+		return scan[0]
+
 def photoBooth(live=False, key=32):
 	cap = cv2.VideoCapture(0)
 	while True:
-		_, frame = cap.read()
-		frame = frame[0:frame.shape[0],frame.shape[1]//2:frame.shape[1]]
-		img = frame
+		_, img = cap.read()
+		# img = img[0:img.shape[0],img.shape[1]//2:img.shape[1]]
 		keypress = cv2.waitKey(10)
 		if (keypress == key) or live:
-			prepped = prepPhoto(img)
-			paper = getPaper(*prepped, img)
-			thresh = paper[0]
-			paper = cv2.cvtColor(paper[1], cv2.COLOR_GRAY2BGR)
-			scan = scanPaper(thresh, 9)
-			cv2.drawContours(paper, scan[1], -1, (255,0,0), -1)
-			cv2.drawContours(paper, scan[2], -1, (0,255,0), -1)
-			print(scan[0]) # we should store it somewhere here, not just print it
-			cv2.imshow("Answers Found", paper)
+			processImage(img, bubbles=72)
 		cv2.imshow("Webcam", img)
 
 
