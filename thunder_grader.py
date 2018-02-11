@@ -7,6 +7,16 @@ from skimage import img_as_ubyte
 import numpy as np
 import imutils
 import cv2
+import math
+
+# SHEET READING CONSTANTS
+k_leftBoxWidth = None
+k_leftBoxHeight = None
+
+k_rightBoxWidth = None
+k_rightBoxHeight = None
+
+
 
 def prepPhoto(image):
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -16,8 +26,6 @@ def prepPhoto(image):
 
 
 def getPaper(edgeMap, gray, image):
-	# find contours in the edge map, then initialize
-	# the contour that corresponds to the document
 	cnts = cv2.findContours(edgeMap.copy(), cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
 	cnts = cnts[0] if imutils.is_cv2() else cnts[1]
@@ -29,21 +37,21 @@ def getPaper(edgeMap, gray, image):
 		# descending order
 		cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
 
-		# loop over the sorted contours
+		
 		for c in cnts:
 			# approximate the contour
 			peri = cv2.arcLength(c, True)
 			approx = cv2.approxPolyDP(c, 0.1 * peri, True)
 
 			# if our approximated contour has four points,
-			# then we can assume we have found the paper
+			# then we can assume we have found the target
 			if len(approx) == 4:
 				targetCnt = approx
 				break
 
 	# apply a four point perspective transform to the
 	# paper images to obtain a rectilinear view of the paper
-	print(type(targetCnt.reshape(4, 2)))
+	# print(type(targetCnt.reshape(4, 2)))
 	warped = four_point_transform(gray, targetCnt.reshape(4, 2))
 	paper = four_point_transform(gray, targetCnt.reshape(4, 2))
 	# apply scikit adaptive threshold to image.
@@ -54,7 +62,7 @@ def getPaper(edgeMap, gray, image):
 def getColumns(paper):
 	thresh = img_as_ubyte(threshold_adaptive(paper, 15, offset = 10))
 	(_, cnts, hierarchy) = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	cv2.imshow("debug", cv2.drawContours(cv2.cvtColor(thresh.copy(), cv2.COLOR_GRAY2BGR), cnts, -1, (255,0,0), 1))
+	# cv2.imshow("debug", cv2.drawContours(cv2.cvtColor(thresh.copy(), cv2.COLOR_GRAY2BGR), cnts, -1, (255,0,0), 1))
 	cnts = contours.sort_contours(cnts, method="top-to-bottom")[0]
 
 
@@ -80,18 +88,18 @@ def getColumns(paper):
 		if validHierarchy[0][i][3] not in removedIDs:
 			markerCnts.append(c)
 		i+=1
-	markerCnts = sorted(markerCnts, key=cv2.contourArea, reverse=True)[:8]
+	markerCnts = sorted(markerCnts, key=cv2.contourArea, reverse=True)[:6]
 
 	display = cv2.cvtColor(thresh.copy(), cv2.COLOR_GRAY2BGR)
 	cv2.drawContours(display, markerCnts, -1, (0,255,0), -1)
 	cv2.line(display, (len(display[0])//2, 0), ((len(display[0])//2), len(display)), (0,0,255), 3)
-	cv2.imshow("current markers", display)
+	# cv2.imshow("current markers", display)
 	if len(markerCnts):
 		markerCnts = contours.sort_contours(markerCnts, method="left-to-right")
 		leftCnts = markerCnts[0][:4]
-		rightCnts = markerCnts[0][4:]
+		rightCnts = markerCnts[0][2:]
 		if len(leftCnts) and len(rightCnts):
-			print(len(markerCnts[0]))
+			# print(len(markerCnts[0]))
 
 			#  1   2
 			#
@@ -103,10 +111,10 @@ def getColumns(paper):
 			cL3 = contours.sort_contours(leftCnts[2:], method="top-to-bottom")[0][1]
 			cL4 = contours.sort_contours(leftCnts[:2], method="top-to-bottom")[0][1]
 
-			pL1 = list(min(cL1, key=(lambda c : c[0][0] + c[0][1]))[0])
-			pL2 = list(min(cL2, key=(lambda c : c[0][1] - c[0][0]))[0])
-			pL3 = list(max(cL3, key=(lambda c : c[0][0] + c[0][1]))[0])
-			pL4 = list(min(cL4, key=(lambda c : c[0][0] - c[0][1]))[0])
+			pL1 = list(max(cL1, key=(lambda c : c[0][0] + c[0][1]))[0])
+			pL2 = list(max(cL2, key=(lambda c : c[0][1] - c[0][0]))[0])
+			pL3 = list(min(cL3, key=(lambda c : c[0][0] + c[0][1]))[0])
+			pL4 = list(max(cL4, key=(lambda c : c[0][0] - c[0][1]))[0])
 
 
 			cR1 = contours.sort_contours(rightCnts[:2], method="top-to-bottom")[0][0]
@@ -114,49 +122,49 @@ def getColumns(paper):
 			cR3 = contours.sort_contours(rightCnts[2:], method="top-to-bottom")[0][1]
 			cR4 = contours.sort_contours(rightCnts[:2], method="top-to-bottom")[0][1]
 
-			pR1 = list(min(cR1, key=(lambda c : c[0][0] + c[0][1]))[0])
-			pR2 = list(min(cR2, key=(lambda c : c[0][1] - c[0][0]))[0])
-			pR3 = list(max(cR3, key=(lambda c : c[0][0] + c[0][1]))[0])
-			pR4 = list(min(cR4, key=(lambda c : c[0][0] - c[0][1]))[0])
+			pR1 = list(max(cR1, key=(lambda c : c[0][0] + c[0][1]))[0])
+			pR2 = list(max(cR2, key=(lambda c : c[0][1] - c[0][0]))[0])
+			pR3 = list(min(cR3, key=(lambda c : c[0][0] + c[0][1]))[0])
+			pR4 = list(max(cR4, key=(lambda c : c[0][0] - c[0][1]))[0])
 
-			print(pL1)
+			# print(pL1)
 			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset = 10))
 			
 			leftBox = np.array([pL1, pL2, pL3, pL4])
 			rightBox = np.array([pR1, pR2, pR3, pR4])
 
-			print(leftBox)
+			# print(leftBox)
 
 			left  = four_point_transform(bubbleThresh, leftBox)
 			right = four_point_transform(bubbleThresh, rightBox)
 
+
+			display = cv2.cvtColor(paper.copy(), cv2.COLOR_GRAY2BGR)
+
+			cv2.line(display, tuple(pL1), tuple(pL2), (0,0,255), 3)
+			cv2.line(display, tuple(pL2), tuple(pL3), (0,0,255), 3)
+			cv2.line(display, tuple(pL3), tuple(pL4), (0,0,255), 3)
+			cv2.line(display, tuple(pL4), tuple(pL1), (0,0,255), 3)
+
+			cv2.line(display, tuple(pR1), tuple(pR2), (255,0,0), 3)
+			cv2.line(display, tuple(pR2), tuple(pR3), (255,0,0), 3)
+			cv2.line(display, tuple(pR3), tuple(pR4), (255,0,0), 3)
+			cv2.line(display, tuple(pR4), tuple(pR1), (255,0,0), 3)
+
+			cv2.imshow("OUTPUT", display)
+
 			return (left, right)
+
 		return None
 
-
-		# CODE THAT DRAWS BOXES
-		# example = cv2.cvtColor(thresh.copy(), cv2.COLOR_GRAY2BGR)
-
-		# cv2.line(example, pL1, pL2, (0,0,255), 3)
-		# cv2.line(example, pL2, pL3, (0,0,255), 3)
-		# cv2.line(example, pL3, pL4, (0,0,255), 3)
-		# cv2.line(example, pL4, pL1, (0,0,255), 3)
-
-		# cv2.line(example, pR1, pR2, (255,0,0), 3)
-		# cv2.line(example, pR2, pR3, (255,0,0), 3)
-		# cv2.line(example, pR3, pR4, (255,0,0), 3)
-		# cv2.line(example, pR4, pR1, (255,0,0), 3)
-
-		# cv2.imshow("example", example)
-
-def cutGrid(image, rows, columns):
+def cutGrid(image, columns, rows):
 	sections = []
-	rowHeight = len(image) // rows
-	colWidth = len(image[0]) // columns
-	for r in range(1, rows + 1):
+	rowHeight = len(image) // columns
+	colWidth = len(image[0]) // rows
+	for r in range(1, columns + 1):
 		rowImg = image[  (r-1)*rowHeight : r * rowHeight  ]
 		row = []
-		for c in range(1, columns + 1):
+		for c in range(1, rows + 1):
 			bubble = rowImg[ : , (c-1)*colWidth : c * colWidth  ]
 			row.append(bubble)
 		sections.append(row)
@@ -164,29 +172,27 @@ def cutGrid(image, rows, columns):
 
 
 def getBubbles(left, right):
-	left = cv2.resize(left, (80,140))
-	right = cv2.resize(right, (80,140))
+	# left = cv2.resize(left, (160,280))
+	right = cv2.resize(right, (120,280))
 
-	left = left[15:125, 10:70]
+	# left = left[26:255, 20:140]
 	cv2.cvtColor(left, cv2.COLOR_GRAY2BGR)
 	cv2.imshow("left cropped", left)
 
-	right = right[15:125, 10:70]
 	cv2.cvtColor(right, cv2.COLOR_GRAY2BGR)
 	cv2.imshow("right cropped", right)
 
-	bubblesLeft  = cutGrid(left, 10, 5)
-	bubblesRight =  cutGrid(right, 10, 5)
+	bubblesLeft  = cutGrid(left, 15, 8)
+	bubblesRight =  cutGrid(right, 15, 3)
 	kernel = np.ones((2,2), np.uint8)
 
 	shadesLeft = []
-
 	for row in bubblesLeft:
 		shadeRow = []
 		for bubble in row:
 			_, bubble = cv2.threshold(bubble,127,255,cv2.THRESH_BINARY)
 			shade = cv2.countNonZero(bubble)
-			shadeRow.append(shade < 100)
+			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < 0.7)
 		shadesLeft.append(shadeRow)
 	
 	shadesRight = []
@@ -194,15 +200,46 @@ def getBubbles(left, right):
 	for row in bubblesRight:
 		shadeRow = []
 		for bubble in row:
-			_, bubble = cv2.threshold(bubble, 127, 255, cv2.THRESH_BINARY)
+			_, bubble = cv2.threshold(bubble,127,255,cv2.THRESH_BINARY)
 			shade = cv2.countNonZero(bubble)
-			shadeRow.append(shade < 100)
+			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < 0.9)
 		shadesRight.append(shadeRow)
 
-	print( "LEFT:")
-	print( prettyPrintBubbles(shadesLeft) )
-	print( "RIGHT:" )
-	print( prettyPrintBubbles(shadesRight) )
+	cv2.imshow("left bubbles", bubbleDisplay(left, shadesLeft, 15, 8))
+
+	# print( "LEFT:")
+	# print( prettyPrintBubbles(shadesLeft) )
+	# print( "RIGHT:" )
+	# print( prettyPrintBubbles(shadesRight) )
+
+	return (shadesLeft, shadesRight)
+
+def bubbleDisplay(image, bubbles, rows, columns):
+	output = cv2.cvtColor(image.copy(), cv2.COLOR_GRAY2BGR)
+	# cv2.rectangle(output, (0,0), (100,100), (255,0,0), 10)
+	x = 0
+	y = 0
+	dx = len(image[0]) / columns
+	dy = len(image) / rows
+	print(len(image[0]))
+	print(dx)
+	print(len(image))
+	print(dy)
+	cease = False
+
+	while not cease:
+		print((x,y))
+		print((len(bubbles), len(bubbles[0])))
+		color = (0,255,0) if bubbles[y][x] else (0,0,255)
+		thickness = 3 if bubbles[y][x] else 1
+		cv2.rectangle(output, (math.floor(x*dx), math.floor(y*dy)), (math.floor((x+1)*dx), math.floor((y+1)*dy)), color, thickness)
+		cv2.imshow("progress", output)
+		x+=1
+		if ((x+1)*dx >= len(image)):
+			y+=1
+			x=0
+		cease = (y >= len(image[0]))
+	return output
 
 
 def prettyPrintBubbles(shades):
@@ -216,23 +253,61 @@ def prettyPrintBubbles(shades):
 		prettyString += "\n"
 	return prettyString
 
+def writeBubblesToCSV(shades, shades2):
+
+	with open('data.csv', 'a') as f:
+		line = ""
+		for bubble in [bubble for row in shades for bubble in row]:
+			line+= str(1 if bubble else 0) + ","
+		for bubble in [bubble for row in shades2 for bubble in row]:
+			line+= str(1 if bubble else 0) + ","
+		f.write(line+ "\n")
+
+def boolArrToInt(arr):
+	return int("".join(str(1 if x else 0) for x in list(np.array(arr).flatten())), 2)
+
+def processData(bubbles):
+	
+	#METADATA
+	scoutID = boolArrToInt(bubbles[1][1:3])
+	compID = boolArrToInt(bubbles[1][6][0:2])
+	botID = boolArrToInt(bubbles[1][8:10])
+	matchID = boolArrToInt(bubbles[1][11:14])
+	
+	#AUTONOMOUS
+	driveForward = boolArrToInt([row[0] for row in bubbles[0][12:14]])
+
+
+
+	print(scoutID)
+	print(compID)
+	print(botID)
+	print(matchID)
+
+	print(driveForward)
+
+
+
 
 
 def photoBooth(live=False, key=32):
 	cap = cv2.VideoCapture(0)
+	shades = ()
 	while True:
-		_, img = cap.read()
-		keypress = cv2.waitKey(10)
-		processed = []
-		if (keypress == key) or live:
-			processed = getPaper(*prepPhoto(img), img)
-			columns = getColumns(processed[1])
-			if columns:
-				getBubbles(*columns)
-		cv2.imshow("Webcam", img)
+		try:
+			_, img = cap.read()
+			keypress = cv2.waitKey(10)
+			processed = []
+			if (keypress == key) or live:
+				processed = getPaper(*prepPhoto(img), img)
+				columns = getColumns(processed[1])
+				if columns:
+					bubbles = getBubbles(*columns)
+					processData(bubbles)
 
+			cv2.imshow("Webcam", img)
+		except Exception as e:
+			print(e)
 
-photoBooth()
-
-
-
+if __name__ == '__main__':
+	photoBooth()
