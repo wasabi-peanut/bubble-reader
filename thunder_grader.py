@@ -10,11 +10,10 @@ import cv2
 import math
 
 # SHEET READING CONSTANTS
-k_leftBoxWidth = None
-k_leftBoxHeight = None
-
-k_rightBoxWidth = None
-k_rightBoxHeight = None
+k_leftBoxDimensions = (0,0)
+k_leftBoxGrid = (0,0)
+k_rightBoxDimensions = (0,0)
+k_rightBoxGrid = (0,0)
 
 
 
@@ -172,15 +171,15 @@ def cutGrid(image, columns, rows):
 
 
 def getBubbles(left, right):
-	# left = cv2.resize(left, (160,280))
-	right = cv2.resize(right, (120,280))
+	left = cv2.resize(left, (203,260))
+	right = cv2.resize(right, (100,350))
 
 	# left = left[26:255, 20:140]
 	cv2.cvtColor(left, cv2.COLOR_GRAY2BGR)
-	cv2.imshow("left cropped", left)
+	# cv2.imshow("left cropped", left)
 
 	cv2.cvtColor(right, cv2.COLOR_GRAY2BGR)
-	cv2.imshow("right cropped", right)
+	# cv2.imshow("right cropped", right)
 
 	bubblesLeft  = cutGrid(left, 15, 8)
 	bubblesRight =  cutGrid(right, 15, 3)
@@ -202,10 +201,11 @@ def getBubbles(left, right):
 		for bubble in row:
 			_, bubble = cv2.threshold(bubble,127,255,cv2.THRESH_BINARY)
 			shade = cv2.countNonZero(bubble)
-			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < 0.9)
+			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < 0.8)
 		shadesRight.append(shadeRow)
 
 	cv2.imshow("left bubbles", bubbleDisplay(left, shadesLeft, 15, 8))
+	cv2.imshow("right bubbles", bubbleDisplay(right, shadesRight, 15, 3))
 
 	# print( "LEFT:")
 	# print( prettyPrintBubbles(shadesLeft) )
@@ -220,6 +220,7 @@ def bubbleDisplay(image, bubbles, rows, columns):
 	x = 0
 	y = 0
 	dx = len(image[0]) / columns
+	print("width: %d, columns: %d, dx: %f" % (len(image[0]), columns, dx))
 	dy = len(image) / rows
 	print(len(image[0]))
 	print(dx)
@@ -228,17 +229,20 @@ def bubbleDisplay(image, bubbles, rows, columns):
 	cease = False
 
 	while not cease:
-		print((x,y))
-		print((len(bubbles), len(bubbles[0])))
-		color = (0,255,0) if bubbles[y][x] else (0,0,255)
+		# roi = image[math.floor(y*dy):math.floor((y+1)*dy), math.floor(x*dx):math.floor((x+1)*dx)]
+		# roi2 = roi.copy()
+		# cv2.imshow("roi", roi)
+		# print(cv2.countNonZero(roi) / (len(roi) * len(roi[0])))
+		# cv2.waitKey(0)
+		color = (0,255,0) if bubbles[y][x] else (255,0,0)
 		thickness = 3 if bubbles[y][x] else 1
 		cv2.rectangle(output, (math.floor(x*dx), math.floor(y*dy)), (math.floor((x+1)*dx), math.floor((y+1)*dy)), color, thickness)
-		cv2.imshow("progress", output)
+		# cv2.imshow("progress", output)
 		x+=1
-		if ((x+1)*dx >= len(image)):
+		if (x >= len(bubbles[0])):
 			y+=1
 			x=0
-		cease = (y >= len(image[0]))
+		cease = (y >= len(bubbles))
 	return output
 
 
@@ -253,38 +257,111 @@ def prettyPrintBubbles(shades):
 		prettyString += "\n"
 	return prettyString
 
-def writeBubblesToCSV(shades, shades2):
-
+def writeDataToCSV(data):
+	print("SAVING...")
 	with open('data.csv', 'a') as f:
 		line = ""
-		for bubble in [bubble for row in shades for bubble in row]:
-			line+= str(1 if bubble else 0) + ","
-		for bubble in [bubble for row in shades2 for bubble in row]:
-			line+= str(1 if bubble else 0) + ","
+		for item in data:
+			line+="\"" + str(item)+"\", "
+		print(line)
 		f.write(line+ "\n")
 
 def boolArrToInt(arr):
-	return int("".join(str(1 if x else 0) for x in list(np.array(arr).flatten())), 2)
+	print([str(int(x)) for x in list(np.array(arr).flatten())])
+	return int("".join([str(int(x)) for x in list(np.array(arr).flatten())]))
 
-def processData(bubbles):
+def boolArrToRating(arr):
+	arr = list(np.array(arr).flatten())
+	rating = 0
+	if any(arr):
+		for x in arr:
+			rating+=1
+			if x:
+				return rating
+	return rating
+def boolArrToSum(arr):
+	return sum(int(x) for x in list(np.array(arr).flatten()))
+
+def processMatchScout(bubbles):
 	
+
 	#METADATA
 	scoutID = boolArrToInt(bubbles[1][1:3])
-	compID = boolArrToInt(bubbles[1][6][0:2])
+	scoutTable = {
+		0: "NO NAME",
+		1: "Alex",
+		10: "Elaina",
+		100: "Taya",
+		1000: "Jazmyne",
+		10000: "Owen",
+		100000: "Ella",
+		110000: "Gabby",
+		101000: "Dani"
+	}
+	scoutName = scoutTable[scoutID]
+	compID = boolArrToInt(bubbles[1][6])
+	compTable = {
+		0: "PRACTICE",
+		11: "SCOUTING TEST",
+		1: "UTAH REGIONAL",
+		10: "COLORADO REGIONAL",
+		100: "HOUSTON"
+	}
+	compName = compTable[compID]
 	botID = boolArrToInt(bubbles[1][8:10])
 	matchID = boolArrToInt(bubbles[1][11:14])
-	
+		
 	#AUTONOMOUS
-	driveForward = boolArrToInt([row[0] for row in bubbles[0][12:14]])
+
+	driveForward = [row[0] for row in bubbles[0][12:14]]
+	dfString = "NO ATTEMPT"
+	if driveForward[0]:
+		dfString = "SUCCESS"
+	elif driveForward[1]:
+		dfString = "FAIL"
+
+	switch = [row[2:4] for row in bubbles[0][12:14]]
+	swString = str(boolArrToSum(switch[0]))
+	swAttemptString = str(boolArrToSum(switch[0]) + boolArrToSum(switch[1]))
+
+	scale = [row[5:7] for row in bubbles[0][12:14]]
+	scString = str(boolArrToSum(scale[0]))
+	scAttemptString = str(boolArrToSum(scale[0]) + boolArrToSum(scale[1]))
+
+	autoIntookCubesString = str(boolArrToSum(bubbles[0][10]))
 
 
 
-	print(scoutID)
-	print(compID)
-	print(botID)
-	print(matchID)
+	#TELEOP
+	climb = boolArrToInt(bubbles[0][1][3:])
+	print(bubbles[0][1][3:])
+	climbTable = {
+	1000: "LEVITATED",
+	1001: "ASSISTED FROM OFF PLATFORM",
+	1011: "ASSISTED FROM PLATFORM",
+	1100: "FAILED CLIMB",
+	1101: "FAILED ASSISTED CLIMB",
+	  10: "PLATFORM, NO CLIMB",
+	1010: "SUCCESSFUL CLIMB"}
+	climbString = climbTable[climb]
 
-	print(driveForward)
+	cubeCounts = bubbles[0][2:6]
+	scTeleopString  = str(boolArrToSum(cubeCounts[0][3:]))
+	swTeleopString  = str(boolArrToSum(cubeCounts[1][3:]))
+	oswTeleopString = str(boolArrToSum(cubeCounts[2][3:]))
+	exTeleopString  = str(boolArrToSum(cubeCounts[3]))
+
+	fieldConfigString = str(boolArrToInt(bubbles[0][6][:3]))
+	startPosString = str(boolArrToInt(bubbles[0][6][5:]))
+	cubeRatingString = str(boolArrToRating(bubbles[0][7][:4]))	
+	foulsString = str(boolArrToSum(bubbles[0][7][5:]))
+	droppedCubesString = str(boolArrToSum(bubbles[0][8]))
+	intookCubesTeleopString = str(boolArrToSum(bubbles[0][9]))
+
+
+
+	# SCOUT | TEAM | COMP | MATCH | CROSSLINE | AUTO SWITCH | AUTO SCALE | AUTO INTAKE | TELEOP SWITCH | TELEOP SCALE | TELEOP OTHER SWITCH | TELOP EXCHANGE | FIELD CONFIG | START POS | FOULS | DROPPED/FUMBLED CUBES | TELEOP INTAKE | CLIMB STATUS
+	writeDataToCSV([scoutName, botID, compName, matchID, dfString, swString + "/" + swAttemptString, scString + "/" + scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString])
 
 
 
@@ -293,6 +370,7 @@ def processData(bubbles):
 def photoBooth(live=False, key=32):
 	cap = cv2.VideoCapture(0)
 	shades = ()
+	bubbles = []
 	while True:
 		try:
 			_, img = cap.read()
@@ -303,10 +381,12 @@ def photoBooth(live=False, key=32):
 				columns = getColumns(processed[1])
 				if columns:
 					bubbles = getBubbles(*columns)
-					processData(bubbles)
-
+					# processMatchScout(bubbles)
+			elif (keypress == 109):
+				processMatchScout(bubbles)	
 			cv2.imshow("Webcam", img)
 		except Exception as e:
+			print("ERROR:")
 			print(e)
 
 if __name__ == '__main__':
