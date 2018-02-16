@@ -8,12 +8,7 @@ import numpy as np
 import imutils
 import cv2
 import math
-
-# SHEET READING CONSTANTS
-k_leftBoxDimensions = (0,0)
-k_leftBoxGrid = (0,0)
-k_rightBoxDimensions = (0,0)
-k_rightBoxGrid = (0,0)
+import config
 
 
 
@@ -126,17 +121,20 @@ def getColumns(paper):
 			pR3 = list(min(cR3, key=(lambda c : c[0][0] + c[0][1]))[0])
 			pR4 = list(max(cR4, key=(lambda c : c[0][0] - c[0][1]))[0])
 
-			# print(pL1)
 			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset = 10))
 			
 			leftBox = np.array([pL1, pL2, pL3, pL4])
 			rightBox = np.array([pR1, pR2, pR3, pR4])
 
-			# print(leftBox)
+			print(leftBox)
 
 			left  = four_point_transform(bubbleThresh, leftBox)
 			right = four_point_transform(bubbleThresh, rightBox)
 
+			notesThresh = img_as_ubyte(threshold_adaptive(paper, 13, offset = 2.5))
+			notes = paper[pR3[1]:]
+
+			cv2.imshow("notes", notes)
 
 			display = cv2.cvtColor(paper.copy(), cv2.COLOR_GRAY2BGR)
 
@@ -171,8 +169,8 @@ def cutGrid(image, columns, rows):
 
 
 def getBubbles(left, right):
-	left = cv2.resize(left, (203,260))
-	right = cv2.resize(right, (100,350))
+	left = cv2.resize(left, config.leftBoxDimensions)
+	right = cv2.resize(right, config.rightBoxDimensions)
 
 	# left = left[26:255, 20:140]
 	cv2.cvtColor(left, cv2.COLOR_GRAY2BGR)
@@ -181,8 +179,8 @@ def getBubbles(left, right):
 	cv2.cvtColor(right, cv2.COLOR_GRAY2BGR)
 	# cv2.imshow("right cropped", right)
 
-	bubblesLeft  = cutGrid(left, 15, 8)
-	bubblesRight =  cutGrid(right, 15, 3)
+	bubblesLeft  = cutGrid(left, *config.leftBoxGrid)
+	bubblesRight =  cutGrid(right, *config.rightBoxGrid)
 	kernel = np.ones((2,2), np.uint8)
 
 	shadesLeft = []
@@ -191,7 +189,7 @@ def getBubbles(left, right):
 		for bubble in row:
 			_, bubble = cv2.threshold(bubble,127,255,cv2.THRESH_BINARY)
 			shade = cv2.countNonZero(bubble)
-			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < 0.7)
+			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < config.leftThresh)
 		shadesLeft.append(shadeRow)
 	
 	shadesRight = []
@@ -201,11 +199,11 @@ def getBubbles(left, right):
 		for bubble in row:
 			_, bubble = cv2.threshold(bubble,127,255,cv2.THRESH_BINARY)
 			shade = cv2.countNonZero(bubble)
-			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < 0.8)
+			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < config.rightThresh)
 		shadesRight.append(shadeRow)
 
-	cv2.imshow("left bubbles", bubbleDisplay(left, shadesLeft, 15, 8))
-	cv2.imshow("right bubbles", bubbleDisplay(right, shadesRight, 15, 3))
+	cv2.imshow("left bubbles", bubbleDisplay(left, shadesLeft, *config.leftBoxGrid))
+	cv2.imshow("right bubbles", bubbleDisplay(right, shadesRight, *config.rightBoxGrid))
 
 	# print( "LEFT:")
 	# print( prettyPrintBubbles(shadesLeft) )
@@ -216,7 +214,6 @@ def getBubbles(left, right):
 
 def bubbleDisplay(image, bubbles, rows, columns):
 	output = cv2.cvtColor(image.copy(), cv2.COLOR_GRAY2BGR)
-	# cv2.rectangle(output, (0,0), (100,100), (255,0,0), 10)
 	x = 0
 	y = 0
 	dx = len(image[0]) / columns
@@ -229,15 +226,9 @@ def bubbleDisplay(image, bubbles, rows, columns):
 	cease = False
 
 	while not cease:
-		# roi = image[math.floor(y*dy):math.floor((y+1)*dy), math.floor(x*dx):math.floor((x+1)*dx)]
-		# roi2 = roi.copy()
-		# cv2.imshow("roi", roi)
-		# print(cv2.countNonZero(roi) / (len(roi) * len(roi[0])))
-		# cv2.waitKey(0)
 		color = (0,255,0) if bubbles[y][x] else (255,0,0)
 		thickness = 3 if bubbles[y][x] else 1
 		cv2.rectangle(output, (math.floor(x*dx), math.floor(y*dy)), (math.floor((x+1)*dx), math.floor((y+1)*dy)), color, thickness)
-		# cv2.imshow("progress", output)
 		x+=1
 		if (x >= len(bubbles[0])):
 			y+=1
@@ -258,17 +249,22 @@ def prettyPrintBubbles(shades):
 	return prettyString
 
 def writeDataToCSV(data):
-	print("SAVING...")
-	with open('data.csv', 'a') as f:
-		line = ""
-		for item in data:
-			line+="\"" + str(item)+"\", "
-		print(line)
-		f.write(line+ "\n")
+	if data:
+		print("SAVING...")
+		with open('data.csv', 'a') as f:
+			line = ""
+			for item in data:
+				line+="\"" + str(item)+"\", "
+			print(line)
+			f.write(line+ "\n")
 
-def boolArrToInt(arr):
+def boolArrToBinary(arr):
 	print([str(int(x)) for x in list(np.array(arr).flatten())])
 	return int("".join([str(int(x)) for x in list(np.array(arr).flatten())]))
+
+def boolArrToDecimal(arr):
+	print([str(int(x)) for x in list(np.array(arr).flatten())])
+	return int("".join([str(int(x)) for x in list(np.array(arr).flatten())]), 2)
 
 def boolArrToRating(arr):
 	arr = list(np.array(arr).flatten())
@@ -281,88 +277,6 @@ def boolArrToRating(arr):
 	return rating
 def boolArrToSum(arr):
 	return sum(int(x) for x in list(np.array(arr).flatten()))
-
-def processMatchScout(bubbles):
-	
-
-	#METADATA
-	scoutID = boolArrToInt(bubbles[1][1:3])
-	scoutTable = {
-		0: "NO NAME",
-		1: "Alex",
-		10: "Elaina",
-		100: "Taya",
-		1000: "Jazmyne",
-		10000: "Owen",
-		100000: "Ella",
-		110000: "Gabby",
-		101000: "Dani"
-	}
-	scoutName = scoutTable[scoutID]
-	compID = boolArrToInt(bubbles[1][6])
-	compTable = {
-		0: "PRACTICE",
-		11: "SCOUTING TEST",
-		1: "UTAH REGIONAL",
-		10: "COLORADO REGIONAL",
-		100: "HOUSTON"
-	}
-	compName = compTable[compID]
-	botID = boolArrToInt(bubbles[1][8:10])
-	matchID = boolArrToInt(bubbles[1][11:14])
-		
-	#AUTONOMOUS
-
-	driveForward = [row[0] for row in bubbles[0][12:14]]
-	dfString = "NO ATTEMPT"
-	if driveForward[0]:
-		dfString = "SUCCESS"
-	elif driveForward[1]:
-		dfString = "FAIL"
-
-	switch = [row[2:4] for row in bubbles[0][12:14]]
-	swString = str(boolArrToSum(switch[0]))
-	swAttemptString = str(boolArrToSum(switch[0]) + boolArrToSum(switch[1]))
-
-	scale = [row[5:7] for row in bubbles[0][12:14]]
-	scString = str(boolArrToSum(scale[0]))
-	scAttemptString = str(boolArrToSum(scale[0]) + boolArrToSum(scale[1]))
-
-	autoIntookCubesString = str(boolArrToSum(bubbles[0][10]))
-
-
-
-	#TELEOP
-	climb = boolArrToInt(bubbles[0][1][3:])
-	print(bubbles[0][1][3:])
-	climbTable = {
-	1000: "LEVITATED",
-	1001: "ASSISTED FROM OFF PLATFORM",
-	1011: "ASSISTED FROM PLATFORM",
-	1100: "FAILED CLIMB",
-	1101: "FAILED ASSISTED CLIMB",
-	  10: "PLATFORM, NO CLIMB",
-	1010: "SUCCESSFUL CLIMB"}
-	climbString = climbTable[climb]
-
-	cubeCounts = bubbles[0][2:6]
-	scTeleopString  = str(boolArrToSum(cubeCounts[0][3:]))
-	swTeleopString  = str(boolArrToSum(cubeCounts[1][3:]))
-	oswTeleopString = str(boolArrToSum(cubeCounts[2][3:]))
-	exTeleopString  = str(boolArrToSum(cubeCounts[3]))
-
-	fieldConfigString = str(boolArrToInt(bubbles[0][6][:3]))
-	startPosString = str(boolArrToInt(bubbles[0][6][5:]))
-	cubeRatingString = str(boolArrToRating(bubbles[0][7][:4]))	
-	foulsString = str(boolArrToSum(bubbles[0][7][5:]))
-	droppedCubesString = str(boolArrToSum(bubbles[0][8]))
-	intookCubesTeleopString = str(boolArrToSum(bubbles[0][9]))
-
-
-
-	# SCOUT | TEAM | COMP | MATCH | CROSSLINE | AUTO SWITCH | AUTO SCALE | AUTO INTAKE | TELEOP SWITCH | TELEOP SCALE | TELEOP OTHER SWITCH | TELOP EXCHANGE | FIELD CONFIG | START POS | FOULS | DROPPED/FUMBLED CUBES | TELEOP INTAKE | CLIMB STATUS
-	writeDataToCSV([scoutName, botID, compName, matchID, dfString, swString + "/" + swAttemptString, scString + "/" + scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString])
-
 
 
 
@@ -383,11 +297,12 @@ def photoBooth(live=False, key=32):
 					bubbles = getBubbles(*columns)
 					# processMatchScout(bubbles)
 			elif (keypress == 109):
-				processMatchScout(bubbles)	
+				writeDataToCSV(config.processMatchScout(bubbles))	
 			cv2.imshow("Webcam", img)
-		except Exception as e:
+		except Exception as hell:
 			print("ERROR:")
-			print(e)
+			print(hell)
+			raise hell
 
 if __name__ == '__main__':
 	photoBooth()
