@@ -1,19 +1,57 @@
 import thunder_grader
+from tkinter import simpledialog
+import tkinter as tk
 
 # GRID SIZE CONSTANTS- GRID SIZE IS (rows, columns), DIMENSIONS IS (width, height).
 # TWEAK DIMENSIONS TO ROUGHLY ASPECT RATIO OF BUBBLE AREA, BIGGER IS BETTER AND SLOWER
 
+matchString = "TESTING"
+
 leftBoxDimensions = (203,260)
 leftBoxGrid = (15, 8)
-leftThresh = 0.7
+leftThresh = 0.8
 
 rightBoxDimensions = (100,350)
 rightBoxGrid = (15, 3)
 rightThresh = 0.8
 
 # THE REST ARE FOR PARSING THE BUBBLES.
-# BY DEFAULT, WHAT YOU RETURN WILL BE WRITTEN TO "data.csv"
-# RETURN None IF YOU WANT TO DOME SOMETHING ELSE
+
+validBubblesLeft = [
+				[1,0,0,0,0,0,0,0],
+				[0,0,0,0,1,1,1,1],
+				[0,0,0,1,1,1,1,1],
+				[0,0,0,1,1,1,1,1],
+				[0,0,0,1,1,1,1,1],
+				[1,1,1,1,1,1,1,1],
+				[1,1,1,0,0,1,1,1],
+				[1,1,1,1,0,1,1,1],
+				[1,1,1,1,1,1,1,1],
+				[1,1,1,1,1,1,1,1],
+				[1,1,1,1,1,1,1,1],
+				[0,0,0,0,0,0,0,0],
+				[1,0,1,1,0,1,1,0],
+				[1,0,1,1,0,1,1,0],
+				[0,0,1,1,0,1,1,0],
+				]
+validBubblesRight = [
+					[0,0,0],
+					[1,1,1],
+					[1,1,1],
+					[0,0,0],
+					[0,0,0],
+					[0,0,0],
+					[1,1,1],
+					[0,0,0],
+					[1,1,1],
+					[1,1,1],
+					[0,0,0],
+					[0,0,0],
+					[0,0,0],
+					[0,0,0],
+					[0,0,0]
+					]
+
 
 scoutTable = {
 		0:		"NO NAME",
@@ -91,16 +129,33 @@ teamIDTable = {
 	110100: 7151
 }
 
+
+main = tk.Tk()
+
+def switchMatch():
+	global matchString
+	matchString =  simpledialog.askstring("Input", "Enter Match String:", parent=main)
+	print("New match descriptor: " + str(matchString))
+
 def processMatchScout(bubbles):
-	
+
 
 	#METADATA
 	scoutID = thunder_grader.boolArrToBinary(bubbles[1][1:3])
-	scoutName = scoutTable[scoutID]
+	scoutName = str(scoutID)
+	if scoutID in scoutTable:
+		scoutName = scoutTable[scoutID]
+
 	compID = thunder_grader.boolArrToBinary(bubbles[1][6])
-	compName = compTable[compID]
+	compName = str(compID)
+	if compID in compTable:
+		compName = compTable[compID]
+
 	teamID = thunder_grader.boolArrToBinary(bubbles[1][8:10])
-	teamName = teamIDTable[teamID]
+	teamName = str(teamID)
+	if teamID in teamIDTable:
+		teamName = teamIDTable[teamID]
+
 	matchID = thunder_grader.boolArrToBinary(bubbles[1][11:14])
 	
 		
@@ -129,15 +184,19 @@ def processMatchScout(bubbles):
 	climb = thunder_grader.boolArrToBinary(bubbles[0][1][3:])
 	print(bubbles[0][1][3:])
 	climbTable = {
+		   0: "NO ATTEMPT",
 		1000: "LEVITATED",
 		1001: "ASSISTED FROM OFF PLATFORM",
 		1011: "ASSISTED FROM PLATFORM",
 		1100: "FAILED CLIMB",
 		1101: "FAILED ASSISTED CLIMB",
-		  10: "PLATFORM, NO CLIMB",
+		  10: "PLATFORM / NO CLIMB",
 		1010: "SUCCESSSSFUL CLIMB"
 	}
-	climbString = climbTable[climb]
+	climbString = str(climb)
+	if climb in climbTable:
+		climbString = climbTable[climb]
+
 
 	cubeCounts = bubbles[0][2:6]
 	scTeleopString  = str(thunder_grader.boolArrToSum(cubeCounts[0][3:]))
@@ -145,8 +204,20 @@ def processMatchScout(bubbles):
 	oswTeleopString = str(thunder_grader.boolArrToSum(cubeCounts[2][3:]))
 	exTeleopString  = str(thunder_grader.boolArrToSum(cubeCounts[3]))
 
-	fieldConfigString = str(thunder_grader.boolArrToBinary(bubbles[0][6][:3]))
-	startPosString = str(thunder_grader.boolArrToBinary(bubbles[0][6][5:]))
+	fieldConfig = thunder_grader.boolArrToBinary(bubbles[0][6][:3])
+	fieldConfigTable = {
+		  0: "OOO",
+		111: "SSS",
+		101: "SOS",
+		 10: "OSO",
+
+	}
+	fieldConfigString = str(fieldConfig)
+	if fieldConfig in fieldConfigTable:
+		fieldConfigString = fieldConfigTable[fieldConfig]
+
+
+	startPosString = str(thunder_grader.boolArrToRating(bubbles[0][6][5:]))
 	cubeRatingString = str(thunder_grader.boolArrToRating(bubbles[0][7][:4]))	
 	foulsString = str(thunder_grader.boolArrToSum(bubbles[0][7][5:]))
 	droppedCubesString = str(thunder_grader.boolArrToSum(bubbles[0][8]))
@@ -155,4 +226,4 @@ def processMatchScout(bubbles):
 
 
 	# SCOUT | TEAM | COMP | MATCH | CROSSLINE | AUTO SWITCH | AUTO SCALE | AUTO INTAKE | TELEOP SWITCH | TELEOP SCALE | TELEOP OTHER SWITCH | TELOP EXCHANGE | FIELD CONFIG | START POS | FOULS | DROPPED/FUMBLED CUBES | TELEOP INTAKE | CLIMB STATUS
-	return [scoutName, teamName, compName, matchID, dfString, swString + "/" + swAttemptString, scString + "/" + scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString]
+	return [scoutName, teamName, compName, matchString, dfString, swString + "/" + swAttemptString, scString + "/" + scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString]

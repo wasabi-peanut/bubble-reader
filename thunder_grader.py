@@ -202,7 +202,7 @@ def getBubbles(left, right):
 			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < config.rightThresh)
 		shadesRight.append(shadeRow)
 
-	cv2.imshow("left bubbles", bubbleDisplay(left, shadesLeft, *config.leftBoxGrid))
+	cv2.imshow("left bubbles", bubbleDisplay(left, shadesLeft, *config.leftBoxGrid, True))
 	cv2.imshow("right bubbles", bubbleDisplay(right, shadesRight, *config.rightBoxGrid))
 
 	# print( "LEFT:")
@@ -212,28 +212,44 @@ def getBubbles(left, right):
 
 	return (shadesLeft, shadesRight)
 
-def bubbleDisplay(image, bubbles, rows, columns):
+def bubbleDisplay(image, bubbles, rows, columns, left=False):
+	right = not left
 	output = cv2.cvtColor(image.copy(), cv2.COLOR_GRAY2BGR)
 	x = 0
 	y = 0
 	dx = len(image[0]) / columns
-	print("width: %d, columns: %d, dx: %f" % (len(image[0]), columns, dx))
 	dy = len(image) / rows
-	print(len(image[0]))
-	print(dx)
-	print(len(image))
-	print(dy)
 	cease = False
 
 	while not cease:
-		color = (0,255,0) if bubbles[y][x] else (255,0,0)
-		thickness = 3 if bubbles[y][x] else 1
+		color =  (0,0,0)
+		thickness = 1
+		if (left and not config.validBubblesLeft[y][x]) or (right and not config.validBubblesRight[y][x]):
+				color = (0,0,0)
+				thickness = -1
+
 		cv2.rectangle(output, (math.floor(x*dx), math.floor(y*dy)), (math.floor((x+1)*dx), math.floor((y+1)*dy)), color, thickness)
 		x+=1
 		if (x >= len(bubbles[0])):
 			y+=1
 			x=0
 		cease = (y >= len(bubbles))
+
+	cease = False
+	x = 0
+	y = 0
+
+	while not cease:
+		if ((left and config.validBubblesLeft[y][x]) or (right and config.validBubblesRight[y][x])) and bubbles[y][x]:
+				color = (0,255,0)
+				thickness = 3
+				cv2.rectangle(output, (math.floor(x*dx), math.floor(y*dy)), (math.floor((x+1)*dx), math.floor((y+1)*dy)), color, thickness)
+		x+=1
+		if (x >= len(bubbles[0])):
+			y+=1
+			x=0
+		cease = (y >= len(bubbles))
+
 	return output
 
 
@@ -298,6 +314,8 @@ def photoBooth(live=False, key=32):
 					# processMatchScout(bubbles)
 			elif (keypress == 109):
 				writeDataToCSV(config.processMatchScout(bubbles))	
+			elif (keypress == 113):
+				config.switchMatch()
 			cv2.imshow("Webcam", img)
 		except Exception as hell:
 			print("ERROR:")
