@@ -12,6 +12,7 @@ import config
 
 
 
+
 def prepPhoto(image):
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	blurred = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -121,10 +122,15 @@ def getColumns(paper):
 			pR3 = list(min(cR3, key=(lambda c : c[0][0] + c[0][1]))[0])
 			pR4 = list(max(cR4, key=(lambda c : c[0][0] - c[0][1]))[0])
 
+			pN = list(max(cL3, key=(lambda c : c[0][0] - c[0][1]))[0])
+
 			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset = 10))
-			
+
 			leftBox = np.array([pL1, pL2, pL3, pL4])
 			rightBox = np.array([pR1, pR2, pR3, pR4])
+
+
+
 
 			print(leftBox)
 
@@ -132,8 +138,9 @@ def getColumns(paper):
 			right = four_point_transform(bubbleThresh, rightBox)
 
 			notesThresh = img_as_ubyte(threshold_adaptive(paper, 13, offset = 2.5))
-			notes = paper[pR3[1]:]
-
+			notes = paper[pN[1]:]
+			clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(4,4))
+			notes = clahe.apply(notes)
 			cv2.imshow("notes", notes)
 
 			display = cv2.cvtColor(paper.copy(), cv2.COLOR_GRAY2BGR)
@@ -270,7 +277,7 @@ def writeDataToCSV(data):
 		with open('data.csv', 'a') as f:
 			line = ""
 			for item in data:
-				line+="\"" + str(item)+"\", "
+				line+= str(item) + ", "
 			print(line)
 			f.write(line+ "\n")
 

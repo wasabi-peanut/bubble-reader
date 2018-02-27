@@ -25,7 +25,7 @@ validBubblesLeft = [
 				[0,0,0,1,1,1,1,1],
 				[1,1,1,1,1,1,1,1],
 				[1,1,1,0,0,1,1,1],
-				[1,1,1,1,0,1,1,1],
+				[1,1,1,1,1,0,1,1],
 				[1,1,1,1,1,1,1,1],
 				[1,1,1,1,1,1,1,1],
 				[1,1,1,1,1,1,1,1],
@@ -60,10 +60,10 @@ scoutTable = {
 		100:	"Taya",
 		1000:	"Jazmyne",
 		10000:	"Owen",
-		100000:	"Ella",
+		100000:	"Julia",
 		110000:	"Gabby",
 		101000:	"Dani",
-		111000:	"Julia"
+		111000:	"Ella"
 	}
 
 compTable = {
@@ -168,13 +168,13 @@ def processMatchScout(bubbles):
 	elif driveForward[1]:
 		dfString = "FAIL"
 
-	switch = [row[2:4] for row in bubbles[0][12:14]]
-	swString = str(thunder_grader.boolArrToSum(switch[0]))
-	swAttemptString = str(thunder_grader.boolArrToSum(switch[0]) + thunder_grader.boolArrToSum(switch[1]))
+	switch = [row[2:4] for row in bubbles[0][12:]]
+	swString = str(thunder_grader.boolArrToSum(switch[0:2]))
+	swAttemptString = str(thunder_grader.boolArrToSum(switch))
 
-	scale = [row[5:7] for row in bubbles[0][12:14]]
-	scString = str(thunder_grader.boolArrToSum(scale[0]))
-	scAttemptString = str(thunder_grader.boolArrToSum(scale[0]) + thunder_grader.boolArrToSum(scale[1]))
+	scale = [row[5:7] for row in bubbles[0][12:]]
+	scString = str(thunder_grader.boolArrToSum(scale[0:2]))
+	scAttemptString = str(thunder_grader.boolArrToSum(scale))
 
 	autoIntookCubesString = str(thunder_grader.boolArrToSum(bubbles[0][10]))
 
@@ -186,7 +186,6 @@ def processMatchScout(bubbles):
 	climbTable = {
 		   0: "NO ATTEMPT",
 		1000: "LEVITATED",
-		1001: "ASSISTED FROM OFF PLATFORM",
 		1011: "ASSISTED FROM PLATFORM",
 		1100: "FAILED CLIMB",
 		1101: "FAILED ASSISTED CLIMB",
@@ -218,12 +217,11 @@ def processMatchScout(bubbles):
 
 
 	startPosString = str(thunder_grader.boolArrToRating(bubbles[0][6][5:]))
-	cubeRatingString = str(thunder_grader.boolArrToRating(bubbles[0][7][:4]))	
-	foulsString = str(thunder_grader.boolArrToSum(bubbles[0][7][5:]))
+	cubeRatingString = str(thunder_grader.boolArrToRating(bubbles[0][7][:5]))	
+	foulsString = str(thunder_grader.boolArrToSum(bubbles[0][7][6:]))
 	droppedCubesString = str(thunder_grader.boolArrToSum(bubbles[0][8]))
 	intookCubesTeleopString = str(thunder_grader.boolArrToSum(bubbles[0][9]))
 
+	# SCOUT	 TEAM	 COMP	 MATCH	 CROSSLINE	 AUTO SWITCH	AUTO SWITCH ATTEMPTS 	AUTO SCALE	 AUTO SCALE ATTEMPTS	 AUTO INTAKE	 TELEOP SWITCH	 TELEOP SCALE	 TELEOP OTHER SWITCH	 TELOP EXCHANGE	 FIELD CONFIG	 START POS	 FOULS	 DROPPED/FUMBLED CUBES	 TELEOP INTAKE	 CLIMB STATUS
 
-
-	# SCOUT | TEAM | COMP | MATCH | CROSSLINE | AUTO SWITCH | AUTO SCALE | AUTO INTAKE | TELEOP SWITCH | TELEOP SCALE | TELEOP OTHER SWITCH | TELOP EXCHANGE | FIELD CONFIG | START POS | FOULS | DROPPED/FUMBLED CUBES | TELEOP INTAKE | CLIMB STATUS
-	return [scoutName, teamName, compName, matchString, dfString, swString + "/" + swAttemptString, scString + "/" + scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString]
+	return [scoutName, teamName, compName, matchString, dfString, swString, swAttemptString, scString, scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString]
