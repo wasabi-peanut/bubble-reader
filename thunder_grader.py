@@ -124,7 +124,7 @@ def getColumns(paper):
 
 			pN = list(max(cL3, key=(lambda c : c[0][0] - c[0][1]))[0])
 
-			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset = 10))
+			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset =20))
 
 			leftBox = np.array([pL1, pL2, pL3, pL4])
 			rightBox = np.array([pR1, pR2, pR3, pR4])
@@ -137,11 +137,11 @@ def getColumns(paper):
 			left  = four_point_transform(bubbleThresh, leftBox)
 			right = four_point_transform(bubbleThresh, rightBox)
 
-			notesThresh = img_as_ubyte(threshold_adaptive(paper, 13, offset = 2.5))
-			notes = paper[pN[1]:]
-			clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(4,4))
-			notes = clahe.apply(notes)
-			cv2.imshow("notes", notes)
+			# notesThresh = img_as_ubyte(threshold_adaptive(paper, 13, offset = 2.5))
+			# notes = paper[pN[1]:]
+			# clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(4,4))
+			# notes = clahe.apply(notes)
+			# cv2.imshow("notes", notes)
 
 			display = cv2.cvtColor(paper.copy(), cv2.COLOR_GRAY2BGR)
 
@@ -327,7 +327,7 @@ def photoBooth(live=False, key=32):
 		except Exception as hell:
 			print("ERROR:")
 			print(hell)
-			raise hell
+			# raise hell
 
 if __name__ == '__main__':
 	photoBooth()

@@ -3,9 +3,9 @@ from tkinter import simpledialog
 import tkinter as tk
 
 # GRID SIZE CONSTANTS- GRID SIZE IS (rows, columns), DIMENSIONS IS (width, height).
-# TWEAK DIMENSIONS TO ROUGHLY ASPECT RATIO OF BUBBLE AREA, BIGGER IS BETTER AND SLOWER
+# TWEAK DIMENSIONS TO ROUGHLY ASPECT RATIO OF BUBBLE AREA, BIGGER IS MORE ACCURATE AND SLOWER
 
-matchString = "TESTING"
+matchString = "DEFAULT"
 
 leftBoxDimensions = (203,260)
 leftBoxGrid = (15, 8)
@@ -186,11 +186,14 @@ def processMatchScout(bubbles):
 	climbTable = {
 		   0: "NO ATTEMPT",
 		1000: "LEVITATED",
-		1011: "ASSISTED FROM PLATFORM",
+		1011: "SUCCESSFUL ASSISTED CLIMB",
+		1001: "SUCCESSFUL ASSISTED CLIMB",
 		1100: "FAILED CLIMB",
-		1101: "FAILED ASSISTED CLIMB",
+		1101: "FAILED CLIMB",
+		0111: "FAILED CLIMB",
+		0101: "FAILED CLIMB",
 		  10: "PLATFORM / NO CLIMB",
-		1010: "SUCCESSSSFUL CLIMB"
+		1010: "SUCCESSFUL CLIMB"
 	}
 	climbString = str(climb)
 	if climb in climbTable:
@@ -202,6 +205,12 @@ def processMatchScout(bubbles):
 	swTeleopString  = str(thunder_grader.boolArrToSum(cubeCounts[1][3:]))
 	oswTeleopString = str(thunder_grader.boolArrToSum(cubeCounts[2][3:]))
 	exTeleopString  = str(thunder_grader.boolArrToSum(cubeCounts[3]))
+
+	forceString = str(thunder_grader.boolArrToRating(bubbles[1][11:][0]))
+	boostString = str(thunder_grader.boolArrToRating(bubbles[1][11:][1]))
+	levitateString = str(thunder_grader.boolArrToRating(bubbles[1][11:][2][2]))
+
+	pickListString = str(thunder_grader.boolArrToRating(bubbles[0][0][0]))
 
 	fieldConfig = thunder_grader.boolArrToBinary(bubbles[0][6][:3])
 	fieldConfigTable = {
@@ -222,6 +231,6 @@ def processMatchScout(bubbles):
 	droppedCubesString = str(thunder_grader.boolArrToSum(bubbles[0][8]))
 	intookCubesTeleopString = str(thunder_grader.boolArrToSum(bubbles[0][9]))
 
-	# SCOUT	 TEAM	 COMP	 MATCH	 CROSSLINE	 AUTO SWITCH	AUTO SWITCH ATTEMPTS 	AUTO SCALE	 AUTO SCALE ATTEMPTS	 AUTO INTAKE	 TELEOP SWITCH	 TELEOP SCALE	 TELEOP OTHER SWITCH	 TELOP EXCHANGE	 FIELD CONFIG	 START POS	 FOULS	 DROPPED/FUMBLED CUBES	 TELEOP INTAKE	 CLIMB STATUS
+	# SCOUT,TEAM,COMP,MATCH,CROSSLINE,AUTO SWITCH,AUTO SWITCH ATTEMPTS,AUTO SCALE,AUTO SCALE ATTEMPTS,AUTO INTAKE,TELEOP SWITCH,TELEOP SCALE,TELEOP OTHER SWITCH,TELOP EXCHANGE,FIELD CONFIG,START POS,FOULS,DROPPED/FUMBLED CUBES,TELEOP INTAKE,CLIMB STATUS,FORCE,BOOST,LEVITATE,PICK LIST
 
-	return [scoutName, teamName, compName, matchString, dfString, swString, swAttemptString, scString, scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString]
+	return [scoutName, teamName, compName, matchString, dfString, swString, swAttemptString, scString, scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString, forceString, boostString, levitateString, pickListString]
