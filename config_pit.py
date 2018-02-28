@@ -9,11 +9,11 @@ matchString = "DEFAULT"
 
 leftBoxDimensions = (203,260)
 leftBoxGrid = (15, 8)
-leftThresh = 0.8
+leftThresh = 0.7
 
 rightBoxDimensions = (100,350)
 rightBoxGrid = (15, 3)
-rightThresh = 0.8
+rightThresh = 0.7
 
 # THE REST ARE FOR PARSING THE BUBBLES.
 
@@ -134,10 +134,10 @@ main = tk.Tk()
 
 def switchMatch():
 	global matchString
-	matchString =  simpledialog.askstring("Input", "Enter Match String:", parent=main)
+	matchString =	simpledialog.askstring("Input", "Enter Match String:", parent=main)
 	print("New match descriptor: " + str(matchString))
 
-def processPitScout(bubbles):
+def processMatchScout(bubbles):
 
 
 	#METADATA
@@ -155,74 +155,64 @@ def processPitScout(bubbles):
 	teamName = str(teamID)
 	if teamID in teamIDTable:
 		teamName = teamIDTable[teamID]	
-    
-  
-  #CAPABILITIES
-  scaleString = "YES" if bubbles[0][4] else "NO"
-  switchString = "YES" if bubbles[0][5] else "NO"
-  intakeString = "YES" if bubbles[0][6] else "NO"
-  climbString = "YES" if bubbles[0][7] else "NO"
-  
-  #MECHANISMS
-  elevatorString = "YES" if bubbles[1][2] else "NO"
-  armString = "YES" if bubbles[1][3] else "NO"
-  shooterString = "YES" if bubbles[1][4] else "NO"
-  partnerString = "YES" if bubbles[1][5] else "NO"
-  intakeString = "ACTIVE" if bubbles[1][6] else ("PASSIVE" if bubbles[1][7] else "NONE")
-  
-  #DRIVEBASE
-  drivebase = "NONE"
-  if bubbles[0][2]:
-    drivebase = "KIT"
-  if bubbles[0][3]:
-    drivebase = "H-DRIVE"
-  if bubbles[0][4]:
-    drivebase = "MECANUM"
-  if bubbles[0][5]:
-    drivebase = "SWERVE"
-  if bubbles[0][6]:
-    drivebase = "TRACTION"
-  if bubbles[0][7]:
-    drivebase = "OTHER"
-  
-  #CLIMBING
-  climbPartnerString = thunder_grader.boolArrToRating(bubbles[0][10][6:])
-  climbPos = "NONE"
-  if bubbles[0][10][3]:
-    climbPos = "TUBE"
-  if bubbles[0][10][4]:
-    climbPos = "TUBE"
-  if bubbles[0][10][5]:
-    climbPos = "BOX"
-  
-  #START POS
-  startPos = "NONE"
-  if bubbles[0][12][1]:
-    startPos = "LEFT"
-  if bubbles[0][12][2]:
-    startPos = "CENTER"
-  if bubbles[0][12][3]:
-    startPos = "RIGHT"
-    
-    
-  #PREBUILT
-  preBuilt = "NONE"
-  if bubbles[0][13][5]:
-    preBuilt = "EVERYBOT"
-  if bubbles[0][13][6]:
-    preBuilt = "GREYT"
-  if bubbles[0][13][7]:
-    preBuilt = "REV"
-    
-  #DRIVE FORWARD
-  driveForwardString = "YES" if bubbles[1][13][1] else "NO"
-
-  
-
-  
-  
-  
-  
-  
-  
-  
+		
+	
+	#CAPABILITIES
+	scaleString = "YES" if bubbles[0][4] else "NO"
+	switchString = "YES" if bubbles[0][5] else "NO"
+	intakeString = "YES" if bubbles[0][6] else "NO"
+	climbString = "YES" if bubbles[0][7] else "NO"
+	
+	#MECHANISMS
+	elevatorString = "YES" if bubbles[1][2] else "NO"
+	armString = "YES" if bubbles[1][3] else "NO"
+	shooterString = "YES" if bubbles[1][4] else "NO"
+	partnerString = "YES" if bubbles[1][5] else "NO"
+	intakeString = "ACTIVE" if bubbles[1][6] else ("PASSIVE" if bubbles[1][7] else "NONE")
+	
+	#DRIVEBASE
+	drivebase = "NONE"
+	if bubbles[0][2]:
+		drivebase = "KIT"
+	if bubbles[0][3]:
+		drivebase = "H-DRIVE"
+	if bubbles[0][4]:
+		drivebase = "MECANUM"
+	if bubbles[0][5]:
+		drivebase = "SWERVE"
+	if bubbles[0][6]:
+		drivebase = "TRACTION"
+	if bubbles[0][7]:
+		drivebase = "OTHER"
+	
+	#CLIMBING
+	climbPartnerString = thunder_grader.boolArrToRating(bubbles[0][10][6:])
+	climbPos = "NONE"
+	if bubbles[0][10][3]:
+		climbPos = "TUBE"
+	if bubbles[0][10][4]:
+		climbPos = "TUBE"
+	if bubbles[0][10][5]:
+		climbPos = "BOX"
+	
+	#START POS
+	startPos = "NONE"
+	if bubbles[0][12][1]:
+		startPos = "LEFT"
+	if bubbles[0][12][2]:
+		startPos = "CENTER"
+	if bubbles[0][12][3]:
+		startPos = "RIGHT"
+		
+		
+	#PREBUILT
+	preBuilt = "NONE"
+	if bubbles[0][13][5]:
+		preBuilt = "EVERYBOT"
+	if bubbles[0][13][6]:
+		preBuilt = "GREYT"
+	if bubbles[0][13][7]:
+		preBuilt = "REV"
+		
+	#DRIVE FORWARD
+	driveForwardString = "YES" if bubbles[1][13][1] else "NO"

@@ -124,7 +124,7 @@ def getColumns(paper):
 
 			pN = list(max(cL3, key=(lambda c : c[0][0] - c[0][1]))[0])
 
-			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset =20))
+			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset =10))
 
 			leftBox = np.array([pL1, pL2, pL3, pL4])
 			rightBox = np.array([pR1, pR2, pR3, pR4])
