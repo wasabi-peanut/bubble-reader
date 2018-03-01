@@ -57,7 +57,7 @@ def getPaper(edgeMap, gray, image):
 def getColumns(paper):
 	thresh = img_as_ubyte(threshold_adaptive(paper, 15, offset = 10))
 	(_, cnts, hierarchy) = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	# cv2.imshow("debug", cv2.drawContours(cv2.cvtColor(thresh.copy(), cv2.COLOR_GRAY2BGR), cnts, -1, (255,0,0), 1))
+	# cv2.imshow("debug", cv2.drawContours(cv2.cvtColor(thresh.copy(), 
 	cnts = contours.sort_contours(cnts, method="top-to-bottom")[0]
 
 
@@ -124,7 +124,7 @@ def getColumns(paper):
 
 			pN = list(max(cL3, key=(lambda c : c[0][0] - c[0][1]))[0])
 
-			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 301, offset =20))
+			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 301, offset =10))
 
 			leftBox = np.array([pL1, pL2, pL3, pL4])
 			rightBox = np.array([pR1, pR2, pR3, pR4])
@@ -277,7 +277,7 @@ def prettyPrintBubbles(shades):
 def writeDataToCSV(data):
 	if data:
 		print("SAVING...")
-		with open('data.csv', 'a') as f:
+		with open('data_pit.csv', 'a') as f:
 			line = ""
 			for item in data:
 				line+= str(item) + ", "
@@ -325,12 +325,12 @@ def photoBooth(live=False, key=32):
 			elif (keypress == 109):
 				writeDataToCSV(config.processMatchScout(bubbles))	
 			elif (keypress == 113):
-				config.switchMatch()
+				config.setNotes()
 			cv2.imshow("Webcam", img)
 		except Exception as hell:
 			print("ERROR:")
 			print(hell)
-			raise hell
+			# raise hell
 
 if __name__ == '__main__':
 	photoBooth()

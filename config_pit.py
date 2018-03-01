@@ -5,7 +5,7 @@ import tkinter as tk
 # GRID SIZE CONSTANTS- GRID SIZE IS (rows, columns), DIMENSIONS IS (width, height).
 # TWEAK DIMENSIONS TO ROUGHLY ASPECT RATIO OF BUBBLE AREA, BIGGER IS MORE ACCURATE AND SLOWER
 
-matchString = "DEFAULT"
+notesString = "NONE"
 
 leftBoxDimensions = (203,260)
 leftBoxGrid = (15, 8)
@@ -132,10 +132,12 @@ teamIDTable = {
 
 main = tk.Tk()
 
-def switchMatch():
-	global matchString
-	matchString =	simpledialog.askstring("Input", "Enter Match String:", parent=main)
-	print("New match descriptor: " + str(matchString))
+def setNotes():
+	global notesString
+	notesString =	simpledialog.askstring("Input", "Notes:", parent=main)
+	print(str(notesString))
+
+
 
 def processMatchScout(bubbles):
 
@@ -155,36 +157,35 @@ def processMatchScout(bubbles):
 	teamName = str(teamID)
 	if teamID in teamIDTable:
 		teamName = teamIDTable[teamID]
-	else:
-		print("team id: " + teamID)	
 		
-	
+	print(bubbles[0])
+
 	#CAPABILITIES
 	scaleString = "YES" if bubbles[0][4] else "NO"
 	switchString = "YES" if bubbles[0][5] else "NO"
-	intakeString = "YES" if bubbles[0][6] else "NO"
+	exchangeString = "YES" if bubbles[0][6] else "NO"
 	climbString = "YES" if bubbles[0][7] else "NO"
 	
 	#MECHANISMS
-	elevatorString = "YES" if bubbles[1][2] else "NO"
-	armString = "YES" if bubbles[1][3] else "NO"
-	shooterString = "YES" if bubbles[1][4] else "NO"
-	partnerString = "YES" if bubbles[1][5] else "NO"
-	intakeString = "ACTIVE" if bubbles[1][6] else ("PASSIVE" if bubbles[1][7] else "NONE")
+	elevatorString = "YES" if bubbles[0][4][2] else "NO"
+	armString = "YES" if bubbles[0][4][3] else "NO"
+	shooterString = "YES" if bubbles[0][4][4] else "NO"
+	partnerString = "YES" if bubbles[0][4][5] else "NO"
+	intakeString = "ACTIVE" if bubbles[0][4][6] else ("PASSIVE" if bubbles[1][7] else "NONE")
 	
 	#DRIVEBASE
 	drivebaseString = "NONE"
-	if bubbles[0][2]:
+	if bubbles[0][7][2]:
 		drivebaseString = "KIT"
-	if bubbles[0][3]:
+	if bubbles[0][7][3]:
 		drivebaseString = "H-DRIVE"
-	if bubbles[0][4]:
+	if bubbles[0][7][4]:
 		drivebaseString = "MECANUM"
-	if bubbles[0][5]:
+	if bubbles[0][7][5]:
 		drivebaseString = "SWERVE"
-	if bubbles[0][6]:
+	if bubbles[0][7][6]:
 		drivebaseString = "TRACTION"
-	if bubbles[0][7]:
+	if bubbles[0][7][7]:
 		drivebaseString = "OTHER"
 	
 	#CLIMBING
@@ -193,9 +194,11 @@ def processMatchScout(bubbles):
 	if bubbles[0][10][3]:
 		climbPos = "TUBE"
 	if bubbles[0][10][4]:
-		climbPos = "TUBE"
-	if bubbles[0][10][5]:
 		climbPos = "BOX"
+	if bubbles[0][10][3] and bubbles[0][10][4]:
+		climbPos = "TUBE BOX"
+	if bubbles[0][10][5]:
+		climbPos = "WHOLE"
 	
 	#START POS
 	startPos = ""
@@ -221,6 +224,8 @@ def processMatchScout(bubbles):
 	#DRIVE FORWARD
 	driveForwardString = "YES" if bubbles[1][13][1] else "NO"
 
-
-	return [scoutName, teamName, compName, scaleString, switchString, intakeString,  climbString, elevatorString, armString, shooterString, climbPartnerString, drivebaseString, climbPos, startPos, preBuilt, driveForwardString]
+	global notesString
+	print(notesString)
+	return [scoutName, teamName, compName, scaleString, switchString, exchangeString,  climbString, elevatorString, armString, shooterString, intakeString, climbPartnerString, drivebaseString, climbPos, startPos, preBuilt, driveForwardString, notesString]
+	notesString = "NONE"
 
