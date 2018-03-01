@@ -9,11 +9,11 @@ matchString = "DEFAULT"
 
 leftBoxDimensions = (203,260)
 leftBoxGrid = (15, 8)
-leftThresh = 0.7
+leftThresh = 0.95
 
 rightBoxDimensions = (100,350)
 rightBoxGrid = (15, 3)
-rightThresh = 0.7
+rightThresh = 0.9
 
 # THE REST ARE FOR PARSING THE BUBBLES.
 
@@ -28,7 +28,7 @@ validBubblesLeft = [
 				[0,0,1,1,1,1,1,1],
 				[0,0,0,0,0,0,0,0],
 				[0,0,0,0,0,0,0,0],
-				[0,0,1,1,1,1,1,1],
+				[0,0,0,1,1,1,1,1],
 				[0,0,0,0,0,0,0,0],
 				[0,1,1,1,0,0,0,0],
 				[0,0,0,0,0,1,1,1],
@@ -154,7 +154,9 @@ def processMatchScout(bubbles):
 	teamID = thunder_grader.boolArrToBinary(bubbles[1][8:10])
 	teamName = str(teamID)
 	if teamID in teamIDTable:
-		teamName = teamIDTable[teamID]	
+		teamName = teamIDTable[teamID]
+	else:
+		print("team id: " + teamID)	
 		
 	
 	#CAPABILITIES
@@ -171,19 +173,19 @@ def processMatchScout(bubbles):
 	intakeString = "ACTIVE" if bubbles[1][6] else ("PASSIVE" if bubbles[1][7] else "NONE")
 	
 	#DRIVEBASE
-	drivebase = "NONE"
+	drivebaseString = "NONE"
 	if bubbles[0][2]:
-		drivebase = "KIT"
+		drivebaseString = "KIT"
 	if bubbles[0][3]:
-		drivebase = "H-DRIVE"
+		drivebaseString = "H-DRIVE"
 	if bubbles[0][4]:
-		drivebase = "MECANUM"
+		drivebaseString = "MECANUM"
 	if bubbles[0][5]:
-		drivebase = "SWERVE"
+		drivebaseString = "SWERVE"
 	if bubbles[0][6]:
-		drivebase = "TRACTION"
+		drivebaseString = "TRACTION"
 	if bubbles[0][7]:
-		drivebase = "OTHER"
+		drivebaseString = "OTHER"
 	
 	#CLIMBING
 	climbPartnerString = thunder_grader.boolArrToRating(bubbles[0][10][6:])
@@ -196,13 +198,15 @@ def processMatchScout(bubbles):
 		climbPos = "BOX"
 	
 	#START POS
-	startPos = "NONE"
+	startPos = ""
 	if bubbles[0][12][1]:
-		startPos = "LEFT"
+		startPos = "LEFT "
 	if bubbles[0][12][2]:
-		startPos = "CENTER"
+		startPos += "CENTER "
 	if bubbles[0][12][3]:
-		startPos = "RIGHT"
+		startPos += "RIGHT "
+	if startPos[-1] == " ":
+		startPos = startPos[:-1]
 		
 		
 	#PREBUILT
@@ -216,3 +220,7 @@ def processMatchScout(bubbles):
 		
 	#DRIVE FORWARD
 	driveForwardString = "YES" if bubbles[1][13][1] else "NO"
+
+
+	return [scoutName, teamName, compName, scaleString, switchString, intakeString,  climbString, elevatorString, armString, shooterString, climbPartnerString, drivebaseString, climbPos, startPos, preBuilt, driveForwardString]
+

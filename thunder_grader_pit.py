@@ -124,7 +124,7 @@ def getColumns(paper):
 
 			pN = list(max(cL3, key=(lambda c : c[0][0] - c[0][1]))[0])
 
-			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset =10))
+			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 301, offset =20))
 
 			leftBox = np.array([pL1, pL2, pL3, pL4])
 			rightBox = np.array([pR1, pR2, pR3, pR4])
@@ -195,6 +195,8 @@ def getBubbles(left, right):
 		shadeRow = []
 		for bubble in row:
 			_, bubble = cv2.threshold(bubble,127,255,cv2.THRESH_BINARY)
+			print(len(bubble))
+			bubble = bubble[10:]
 			shade = cv2.countNonZero(bubble)
 			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < config.leftThresh)
 		shadesLeft.append(shadeRow)
@@ -205,6 +207,7 @@ def getBubbles(left, right):
 		shadeRow = []
 		for bubble in row:
 			_, bubble = cv2.threshold(bubble,127,255,cv2.THRESH_BINARY)
+			bubble = bubble[10:-10]
 			shade = cv2.countNonZero(bubble)
 			shadeRow.append((shade / (len(bubble) * len(bubble[0]))) < config.rightThresh)
 		shadesRight.append(shadeRow)
@@ -327,7 +330,7 @@ def photoBooth(live=False, key=32):
 		except Exception as hell:
 			print("ERROR:")
 			print(hell)
-			# raise hell
+			raise hell
 
 if __name__ == '__main__':
 	photoBooth()
