@@ -280,6 +280,14 @@ def writeDataToCSV(data):
 				line+= str(item) + ", "
 			print(line)
 			f.write(line+ "\n")
+			
+def writeDataToJSON(data, filename):
+	if data:
+		print("SAVING...")
+		with open(filename, 'a') as f:
+			for item in data:
+				line = "\"" + str(item[0]) + "\": \"" + str(item[1]) + "\""
+				f.write(line + "\n") 
 
 def boolArrToBinary(arr):
 	print([str(int(x)) for x in list(np.array(arr).flatten())])
