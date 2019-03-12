@@ -13,26 +13,26 @@ leftThresh = 0.8
 
 rightBoxDimensions = (100,350)
 rightBoxGrid = (15, 3)
-rightThresh = 0.8
+rightThresh = 0.9
 
 # THE REST ARE FOR PARSING THE BUBBLES.
 
 validBubblesLeft = [
-				[1,0,0,0,0,0,0,0],
-				[0,0,0,0,1,1,1,1],
-				[0,0,0,1,1,1,1,1],
-				[0,0,0,1,1,1,1,1],
-				[0,0,0,1,1,1,1,1],
-				[1,1,1,1,1,1,1,1],
-				[1,1,1,0,0,1,1,1],
-				[1,1,1,1,1,0,1,1],
-				[1,1,1,1,1,1,1,1],
-				[1,1,1,1,1,1,1,1],
-				[1,1,1,1,1,1,1,1],
+				[0,1,1,1,1,0,0,0],
+				[0,1,1,1,1,0,0,0],
+				[0,1,1,1,1,0,0,0],
+				[0,1,1,1,1,0,0,0],
+				[0,1,1,1,1,0,0,0],
+				[0,1,1,1,1,0,0,0],
+				[0,1,1,1,1,1,1,1],
+				[0,1,1,1,1,1,1,1],
 				[0,0,0,0,0,0,0,0],
-				[1,0,1,1,0,1,1,0],
-				[1,0,1,1,0,1,1,0],
-				[0,0,1,1,0,1,1,0],
+				[0,1,1,1,1,0,0,0],
+				[0,1,1,1,0,0,1,1],
+				[0,1,1,1,0,0,1,1],
+				[0,1,1,1,0,0,0,1],
+				[0,1,1,1,0,0,0,1],
+				[0,1,1,1,1,0,0,1],
 				]
 validBubblesRight = [
 					[0,0,0],
@@ -46,88 +46,98 @@ validBubblesRight = [
 					[1,1,1],
 					[1,1,1],
 					[0,0,0],
-					[0,0,0],
-					[0,0,0],
-					[0,0,0],
+					[0,0,1],
+					[0,0,1],
+					[0,0,1],
 					[0,0,0]
 					]
 
 
-scoutTable = {
-		0:		"NO NAME",
-		1:		"Alex",
-		10:		"Elaina",
-		100:	"Taya",
-		1000:	"Jazmyne",
-		10000:	"Owen",
-		100000:	"Julia",
-		110000:	"Gabby",
-		101000:	"Dani",
-		111000:	"Ella"
-	}
-
-compTable = {
-	0: "PRACTICE",
-	11: "SCOUTING TEST",
-	1: "UTAH REGIONAL",
-	10: "COLORADO REGIONAL",
-	100: "HOUSTON"
+scoutIDTable = {
+	1: "Julia S",
+	10: "Nick",
+	11: "Jonah",
+	100: "Noah",
+	101: "Jazmyne",
+	110: "Devon",
+	111: "Aidan",
+	1000: "Parker",
+	1001: "Gavyn",
+	1010: "Isaac",
+	1011: "Hagan",
+	1100: "Gabby",
+	1101: "Owen",
+	1110: "Julia D",
+	1111: "Vanessa",
+	10000: "Sam",
+	10001: "Helen",
+	10010: "Wes",
+	10011: "Andrew",
+	10100: "Simon",
+	10101: "Cameron",
+	10110: "Gabe",
+	10111: "Alex",
+	11000: "Emma",
+	11001: "Thomas",
+	11010: "Grady",
 }
+
 
 teamIDTable = {
-	1: 115,
-	10: 159,
-	11: 192,
-	100: 399,
-	101: 662,
-	110: 670,
-	111: 841,
-	1000: 968,
-	1001: 1339,
-	1010: 1410,
-	1011: 1452,
-	1100: 1678,
-	1101: 1891,
-	1110: 2468,
-	1111: 2484,
-	10000: 2576,
-	10001: 2594,
-	10010: 2972,
-	10011: 2993,
-	10100: 2996,
-	10101: 3006,
-	10110: 3166,
-	10111: 3200,
-	11000: 3225,
-	11001: 3230,
-	11010: 3239,
-	11011: 3243,
-	11100: 3245,
-	11101: 3289,
-	11110: 3374,
-	11111: 3405,
-	100000: 3729,
-	100001: 4348,
-	100010: 4550,
-	100011: 4585,
-	100100: 4598,
-	100101: 4944,
-	100110: 5071,
-	100111: 5159,
-	101000: 5461,
-	101001: 5493,
-	101010: 5871,
-	101011: 5933,
-	101100: 5974,
-	101101: 6358,
-	101110: 6400,
-	101111: 6411,
-	110000: 6457,
-	110001: 6546,
-	110010: 6717,
-	110011: 6844,
-	110100: 7151
+	1: 60,
+	10: 118,
+	11: 498,
+	100: 670,
+	101: 687,
+	110: 842,
+	111: 991,
+	1000: 996,
+	1001: 1011,
+	1010: 1138,
+	1011: 1165,
+	1100: 1339,
+	1101: 1622,
+	1110: 1726,
+	1111: 1828,
+	10000: 1891,
+	10001: 2240,
+	10010: 2403,
+	10011: 2478,
+	10100: 2486,
+	10101: 2840,
+	10110: 3009,
+	10111: 3019,
+	11000: 3133,
+	11001: 3187,
+	11010: 3230,
+	11011: 3577,
+	11100: 3853,
+	11101: 4063,
+	11110: 4146,
+	11111: 4183,
+	100000: 4565,
+	100001: 5059,
+	100010: 5133,
+	100011: 5429,
+	100100: 5493,
+	100101: 5496,
+	100110: 5539,
+	100111: 5678,
+	101000: 6127,
+	101001: 6413,
+	101010: 6474,
+	101011: 6546,
+	101100: 6656,
+	101101: 6674,
+	101110: 6821,
+	101111: 6824,
+	110000: 6871,
+	110001: 6922,
+	110010: 7214,
+	110011: 7424,
+	110100: 7426,
 }
+
 
 
 main = tk.Tk()
@@ -143,94 +153,57 @@ def processMatchScout(bubbles):
 	#METADATA
 	scoutID = thunder_grader.boolArrToBinary(bubbles[1][1:3])
 	scoutName = str(scoutID)
-	if scoutID in scoutTable:
-		scoutName = scoutTable[scoutID]
-
-	compID = thunder_grader.boolArrToBinary(bubbles[1][6])
-	compName = str(compID)
-	if compID in compTable:
-		compName = compTable[compID]
+	if scoutID in scoutIDTable:
+		scoutName = scoutIDTable[scoutID]
 
 	teamID = thunder_grader.boolArrToBinary(bubbles[1][8:10])
 	teamName = str(teamID)
 	if teamID in teamIDTable:
 		teamName = teamIDTable[teamID]
 
-	matchID = thunder_grader.boolArrToBinary(bubbles[1][11:14])
-	
-		
+	#START
+	startingPos = ("3" if bubbles[0][12][7] else "") + ("2" if bubbles[0][13][7] else "") + ("1" if bubbles[0][14][7] else "")
+	print(bubbles[0][12][7:8])
+
+	botConfig = ("CARGO" if bubbles[0][10][6] else "") + ("HATCH" if bubbles[0][11][6] else "")
+	fieldConfig = ("CARGO" if bubbles[0][10][7] else "") + ("HATCH" if bubbles[0][11][7] else "")
+
+
 	#AUTONOMOUS
-
-	driveForward = [row[0] for row in bubbles[0][12:14]]
-	dfString = "NO ATTEMPT"
-	if driveForward[0]:
-		dfString = "SUCCESS"
-	elif driveForward[1]:
-		dfString = "FAIL"
-
-	switch = [row[2:4] for row in bubbles[0][12:]]
-	swString = str(thunder_grader.boolArrToSum(switch[0:2]))
-	swAttemptString = str(thunder_grader.boolArrToSum(switch))
-
-	scale = [row[5:7] for row in bubbles[0][12:]]
-	scString = str(thunder_grader.boolArrToSum(scale[0:2]))
-	scAttemptString = str(thunder_grader.boolArrToSum(scale))
-
-	autoIntookCubesString = str(thunder_grader.boolArrToSum(bubbles[0][10]))
-
-
-
+	autoRocketCargo = bubbles[0][10][1:4]
+	autoRocketHatch = bubbles[0][11][1:4]
+	autoCBCargo = bubbles[0][12][1:4]
+	autoCBHatch = bubbles[0][13][1:4]
+	
 	#TELEOP
-	climb = thunder_grader.boolArrToBinary(bubbles[0][1][3:])
-	print(bubbles[0][1][3:])
-	climbTable = {
-		   0: "NO ATTEMPT",
-		1000: "LEVITATED",
-		1011: "SUCCESSFUL ASSISTED CLIMB",
-		1001: "SUCCESSFUL ASSISTED CLIMB",
-		1100: "FAILED CLIMB",
-		1101: "FAILED CLIMB",
-		111: "FAILED CLIMB",
-		101: "FAILED CLIMB",
-		  10: "PLATFORM / NO CLIMB",
-		1010: "SUCCESSFUL CLIMB"
-	}
-	climbString = str(climb)
-	if climb in climbTable:
-		climbString = climbTable[climb]
+	teleopRRocketL3 = bubbles[0][0][1:5]
+	tRRL3C = sum(teleopRRocketL3[1:3])
+	tRRL3H = teleopRRocketL3[0] + teleopRRocketL3[3]
+
+	teleopRRocketL2 = bubbles[0][1][1:5]
+	tRRL2C = sum(teleopRRocketL2[1:3])
+	tRRL2H = teleopRRocketL2[0] + teleopRRocketL2[3]
+
+	teleopRRocketL1 = bubbles[0][2][1:5]
+	tRRL1C = sum(teleopRRocketL1[1:3])
+	tRRL1H = teleopRRocketL1[0] + teleopRRocketL1[3]
+
+	teleopLRocketL3 = bubbles[0][3][1:5]
+	tLRL3C = sum(teleopLRocketL3[1:3])
+	tLRL3H = teleopLRocketL3[0] + teleopLRocketL3[3]
+
+	teleopLRocketL2 = bubbles[0][4][1:5]
+	tLRL2C = sum(teleopLRocketL2[1:3])
+	tLRL2H = teleopLRocketL2[0] + teleopLRocketL2[3]
+	
+	teleopLRocketL1 = bubbles[0][5][1:5]
+	tLRL1C = sum(teleopLRocketL1[1:3])
+	tLRL1H = teleopLRocketL1[0] + teleopLRocketL1[3]
+	
+
+	fouls = bubbles[0][14][1:5]
 
 
-	cubeCounts = bubbles[0][2:6]
-	scTeleopString  = str(thunder_grader.boolArrToSum(cubeCounts[0][3:]))
-	swTeleopString  = str(thunder_grader.boolArrToSum(cubeCounts[1][3:]))
-	oswTeleopString = str(thunder_grader.boolArrToSum(cubeCounts[2][3:]))
-	exTeleopString  = str(thunder_grader.boolArrToSum(cubeCounts[3]))
+	# SCOUT,TEAM,MATCH,STARTING POS,BOT CONFIG,FIELD CONFIG,STORM ROCKET CARGO,STORM ROCKET HATCH,STORM CB CARGO,STORM CB HATCH,RIGHT ROCKET L3 C,RIGHT ROCKET L3 H,RIGHT ROCKET L2 C,RIGHT ROCKET L2 H,RIGHT ROCKET L1 C,RIGHT ROCKET L2 H,RIGHT ROCKET L1 C,RIGHT ROCKET L1 H,LEFT ROCKET L3 C,LEFT ROCKET L3 H,LEFT ROCKET L2 C,LEFT ROCKET L2 H,LEFT ROCKET L1 C,LEFT ROCKET L2 H,LEFT ROCKET L1 C,LEFT ROCKET L1 H,FOULS
 
-	forceString = str(thunder_grader.boolArrToRating(bubbles[1][11:][0]))
-	boostString = str(thunder_grader.boolArrToRating(bubbles[1][11:][1]))
-	levitateString = str(thunder_grader.boolArrToRating(bubbles[1][11:][2][2]))
-
-	pickListString = str(thunder_grader.boolArrToRating(bubbles[0][0][0]))
-
-	fieldConfig = thunder_grader.boolArrToBinary(bubbles[0][6][:3])
-	fieldConfigTable = {
-		  0: "OOO",
-		111: "SSS",
-		101: "SOS",
-		 10: "OSO",
-
-	}
-	fieldConfigString = str(fieldConfig)
-	if fieldConfig in fieldConfigTable:
-		fieldConfigString = fieldConfigTable[fieldConfig]
-
-
-	startPosString = str(thunder_grader.boolArrToRating(bubbles[0][6][5:]))
-	cubeRatingString = str(thunder_grader.boolArrToRating(bubbles[0][7][:5]))	
-	foulsString = str(thunder_grader.boolArrToSum(bubbles[0][7][6:]))
-	droppedCubesString = str(thunder_grader.boolArrToSum(bubbles[0][8]))
-	intookCubesTeleopString = str(thunder_grader.boolArrToSum(bubbles[0][9]))
-
-	# SCOUT,TEAM,COMP,MATCH,CROSSLINE,AUTO SWITCH,AUTO SWITCH ATTEMPTS,AUTO SCALE,AUTO SCALE ATTEMPTS,AUTO INTAKE,TELEOP SWITCH,TELEOP SCALE,TELEOP OTHER SWITCH,TELOP EXCHANGE,FIELD CONFIG,START POS,FOULS,DROPPED/FUMBLED CUBES,TELEOP INTAKE,CLIMB STATUS,FORCE,BOOST,LEVITATE,PICK LIST
-
-	return [scoutName, teamName, compName, matchString, dfString, swString, swAttemptString, scString, scAttemptString, autoIntookCubesString, swTeleopString, scTeleopString, oswTeleopString, exTeleopString, fieldConfigString, startPosString, foulsString, droppedCubesString, intookCubesTeleopString, climbString, forceString, boostString, levitateString, pickListString]
+	return [scoutName, teamName, matchString, startingPos, botConfig, fieldConfig, autoRocketCargo, autoRocketHatch, autoCBCargo, autoCBHatch, tRRL3C, tRRL3H, tRRL2C, tRRL2H, tRRL1C, tRRL1H, tLRL3C, tLRL3H, tLRL2C, tLRL2H, tLRL1C, tLRL1H, fouls]

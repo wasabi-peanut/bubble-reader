@@ -1,4 +1,4 @@
-# thunder_grader.py
+ # thunder_grader.py
 
 from imutils.perspective import four_point_transform
 from imutils import contours
@@ -326,7 +326,7 @@ def photoBooth(live=False, key=32):
 				writeDataToCSV(config.processMatchScout(bubbles))	
 			elif (keypress == 113):
 				config.setNotes()
-			cv2.imshow("Webcam", img)
+			cv2.imshow("Webcam", cv2.flip( img.copy(), 1 ))
 		except Exception as hell:
 			print("ERROR:")
 			print(hell)

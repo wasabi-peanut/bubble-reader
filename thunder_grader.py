@@ -9,14 +9,15 @@ import imutils
 import cv2
 import math
 import config
+from pyzbar import pyzbar
 
 
 
 
 def prepPhoto(image):
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-	edgeMap = cv2.Canny(blurred, 75, 200)
+	blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+	edgeMap = cv2.Canny(blurred, 20, 200)
 	return (edgeMap, gray)
 
 
@@ -49,13 +50,14 @@ def getPaper(edgeMap, gray, image):
 	# print(type(targetCnt.reshape(4, 2)))
 	warped = four_point_transform(gray, targetCnt.reshape(4, 2))
 	paper = four_point_transform(gray, targetCnt.reshape(4, 2))
+	cv2.imshow("ppr", paper)
 	# apply scikit adaptive threshold to image.
 	# this is better than a threshold if there is varied lighting on the paper
 	thresh = img_as_ubyte(threshold_adaptive(warped, 257, offset = 10))
 	return (thresh, paper)
 
 def getColumns(paper):
-	thresh = img_as_ubyte(threshold_adaptive(paper, 15, offset = 10))
+	thresh = img_as_ubyte(threshold_adaptive(paper, 15, offset = 5))
 	(_, cnts, hierarchy) = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	# cv2.imshow("debug", cv2.drawContours(cv2.cvtColor(thresh.copy(), cv2.COLOR_GRAY2BGR), cnts, -1, (255,0,0), 1))
 	cnts = contours.sort_contours(cnts, method="top-to-bottom")[0]
@@ -274,7 +276,7 @@ def prettyPrintBubbles(shades):
 def writeDataToCSV(data):
 	if data:
 		print("SAVING...")
-		with open('data.csv', 'a') as f:
+		with open('data_match.csv', 'a') as f:
 			line = ""
 			for item in data:
 				line+= str(item) + ", "
@@ -304,7 +306,7 @@ def boolArrToSum(arr):
 
 
 
-def photoBooth(live=False, key=32):
+def photoBooth(live=False, key=32, qrkey=ord('q')):
 	cap = cv2.VideoCapture(0)
 	shades = ()
 	bubbles = []
@@ -314,20 +316,23 @@ def photoBooth(live=False, key=32):
 			keypress = cv2.waitKey(10)
 			processed = []
 			if (keypress == key) or live:
+				print("scanning")
 				processed = getPaper(*prepPhoto(img), img)
 				columns = getColumns(processed[1])
 				if columns:
 					bubbles = getBubbles(*columns)
 					# processMatchScout(bubbles)
-			elif (keypress == 109):
+			elif (keypress == ord('r')):
 				writeDataToCSV(config.processMatchScout(bubbles))	
-			elif (keypress == 113):
+			elif (keypress == ord('m')):
 				config.switchMatch()
+			elif (keypress == qrkey):
+				print(pyzbar.decode(img)[0])
 			cv2.imshow("Webcam", img)
-		except Exception as hell:
+		except Exception as e:
 			print("ERROR:")
-			print(hell)
-			# raise hell
+			print(e)
+			raise e
 
 if __name__ == '__main__':
 	photoBooth()
