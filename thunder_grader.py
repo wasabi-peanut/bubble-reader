@@ -6,6 +6,7 @@ from skimage.filters import threshold_adaptive
 from skimage import img_as_ubyte
 import numpy as np
 import imutils
+from collections.abc import Iterable
 import cv2
 import math
 import config
@@ -273,10 +274,25 @@ def prettyPrintBubbles(shades):
 		prettyString += "\n"
 	return prettyString
 
-def writeDataToCSV(data):
+def writeDataToCSVDeep(data, filename):
 	if data:
 		print("SAVING...")
-		with open('data_match.csv', 'a') as f:
+		with open(filename, 'a') as f:
+			line = ""
+			for item in data:
+				if isinstance(item, Iterable):
+					for item2 in item:
+						line+= str(item2) + ", "
+					line+="\n"	
+				else:
+					line+= str(item) + ", "
+			print(line)
+			f.write(line+ "\n")
+
+def writeDataToCSV(data, filename):
+	if data:
+		print("SAVING...")
+		with open(filename, 'a') as f:
 			line = ""
 			for item in data:
 				line+= str(item) + ", "
@@ -316,7 +332,6 @@ def boolArrToSum(arr):
 
 def photoBooth(live=False, key=32, qrkey=ord('q')):
 	cap = cv2.VideoCapture(0)
-	shades = ()
 	bubbles = []
 	while True:
 		try:
@@ -331,11 +346,13 @@ def photoBooth(live=False, key=32, qrkey=ord('q')):
 					bubbles = getBubbles(*columns)
 					# processMatchScout(bubbles)
 			elif (keypress == ord('r')):
-				writeDataToCSV(config.processMatchScout(bubbles))	
+				writeDataToCSV(*config.processMatchScout(bubbles))	
 			elif (keypress == ord('m')):
 				config.switchMatch()
 			elif (keypress == qrkey):
-				print(pyzbar.decode(img)[0])
+				codes = pyzbar.decode(img)
+				if len(codes):
+					writeDataToCSVDeep(*config.processCycles(codes))
 			cv2.imshow("Webcam", img)
 		except Exception as e:
 			print("ERROR:")

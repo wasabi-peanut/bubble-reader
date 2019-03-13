@@ -7,6 +7,10 @@ import tkinter as tk
 
 matchString = "DEFAULT"
 
+match_filename = "data_match.csv"
+cycle_filename = "data_cycle.csv"
+
+
 leftBoxDimensions = (203,260)
 leftBoxGrid = (15, 8)
 leftThresh = 0.8
@@ -169,6 +173,7 @@ def processMatchScout(bubbles):
 	fieldConfig = ("CARGO" if bubbles[0][10][7] else "") + ("HATCH" if bubbles[0][11][7] else "")
 
 
+
 	#AUTONOMOUS
 	autoRocketCargo = bubbles[0][10][1:4]
 	autoRocketHatch = bubbles[0][11][1:4]
@@ -203,7 +208,17 @@ def processMatchScout(bubbles):
 
 	fouls = bubbles[0][14][1:5]
 
+	comms = ("Lost" if bubbles[1][11][2] else "") + ("Recovered" if bubbles[1][12][2] else "") + ("Lost" if bubbles[1][13][2] else "")
+
 
 	# SCOUT,TEAM,MATCH,STARTING POS,BOT CONFIG,FIELD CONFIG,STORM ROCKET CARGO,STORM ROCKET HATCH,STORM CB CARGO,STORM CB HATCH,RIGHT ROCKET L3 C,RIGHT ROCKET L3 H,RIGHT ROCKET L2 C,RIGHT ROCKET L2 H,RIGHT ROCKET L1 C,RIGHT ROCKET L2 H,RIGHT ROCKET L1 C,RIGHT ROCKET L1 H,LEFT ROCKET L3 C,LEFT ROCKET L3 H,LEFT ROCKET L2 C,LEFT ROCKET L2 H,LEFT ROCKET L1 C,LEFT ROCKET L2 H,LEFT ROCKET L1 C,LEFT ROCKET L1 H,FOULS
 
-	return [scoutName, teamName, matchString, startingPos, botConfig, fieldConfig, autoRocketCargo, autoRocketHatch, autoCBCargo, autoCBHatch, tRRL3C, tRRL3H, tRRL2C, tRRL2H, tRRL1C, tRRL1H, tLRL3C, tLRL3H, tLRL2C, tLRL2H, tLRL1C, tLRL1H, fouls]
+	data = [scoutName, teamName, matchString, startingPos, botConfig, fieldConfig, comms, autoRocketCargo, autoRocketHatch, autoCBCargo, autoCBHatch, tRRL3C, tRRL3H, tRRL2C, tRRL2H, tRRL1C, tRRL1H, tLRL3C, tLRL3H, tLRL2C, tLRL2H, tLRL1C, tLRL1H, fouls]
+	return (data, match_filename)
+
+def processCycles(codes):
+	print(str(codes[0].data).split("'")[1])
+	data = list(x.split("/") for x in str(codes[0].data).split("'")[1].split("*"))
+	return (data, cycle_filename)
+
+
