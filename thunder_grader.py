@@ -64,7 +64,6 @@ def getColumns(paper):
 	cnts = contours.sort_contours(cnts, method="top-to-bottom")[0]
 
 
-	mask = np.zeros(thresh.shape, dtype="uint8")
 	(_, cnts, hierarchy) = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	validHierarchy, validCnts = [[]], []
 	markerCnts = []
@@ -124,8 +123,6 @@ def getColumns(paper):
 			pR2 = list(max(cR2, key=(lambda c : c[0][1] - c[0][0]))[0])
 			pR3 = list(min(cR3, key=(lambda c : c[0][0] + c[0][1]))[0])
 			pR4 = list(max(cR4, key=(lambda c : c[0][0] - c[0][1]))[0])
-
-			pN = list(max(cL3, key=(lambda c : c[0][0] - c[0][1]))[0])
 
 			bubbleThresh = img_as_ubyte(threshold_adaptive(paper, 257, offset =20))
 
@@ -191,7 +188,6 @@ def getBubbles(left, right):
 
 	bubblesLeft  = cutGrid(left, *config.leftBoxGrid)
 	bubblesRight =  cutGrid(right, *config.rightBoxGrid)
-	kernel = np.ones((2,2), np.uint8)
 
 	shadesLeft = []
 	for row in bubblesLeft:
